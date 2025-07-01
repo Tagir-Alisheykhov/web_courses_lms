@@ -1,3 +1,49 @@
-from django.shortcuts import render
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
+from rest_framework.viewsets import ModelViewSet
 
-# Create your views here.
+from lms.models import Course, Lesson
+from lms.serializers import CourseSerializer, LessonSerializer
+
+
+class CourseViewSet(ModelViewSet):
+    """CRUD для модели курса"""
+
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+
+
+class LessonCreateAPIView(CreateAPIView):
+    """Представление для создания объекта урока"""
+
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+
+
+class LessonListAPIView(ListAPIView):
+    """Представление списка объектов уроков"""
+
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+
+
+class LessonRetrieveAPIView(RetrieveAPIView):
+    """Получение объекта урока"""
+
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+
+
+class LessonUpdateAPIView(UpdateAPIView):
+    """Представление для изменения объекта урок"""
+
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+
+
+class LessonDestroyAPIView(DestroyAPIView):
+    """Удаление объекта урок"""
+
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
