@@ -16,21 +16,16 @@
 git clone git@github.com:Tagir-Alisheykhov/web_courses_lms.git
 ``` 
 ```commandline
-cd WebCoursesLMS
+cd WebCoursesLMS   
 ```
 
 ### 2. Настройка виртуального окружения
+>Для начала убедитесь, что на вашем ПК установлен `poetry`
 ```bash
-python -m venv venv
+poetry install    # Установка зависимостей
 ```
 ```bash
-source venv/bin/activate  # Linux/Mac
-```
-```bash
-venv\Scripts\activate     # Windows
-```
-```bash
-pip install -r requirements.txt
+poetry shell    # Активация виртуального окружения 
 ```
 
 ### 4. Миграции
@@ -45,13 +40,6 @@ python manage.py runserver
 ```
 -- После успешного запуска откройте: http://localhost:8000
 
-
-### 📦 Возможные доработки проекта
-- ✅ Интеграция Celery
-- ✅ Графики статистики
-- ✅ API (DRF)
-- ✅ Поддержка i18n
-- ✅ Email-уведомления
 
 ### 📄 Лицензия
 - MIT License © 2025
