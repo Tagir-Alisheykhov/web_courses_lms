@@ -45,49 +45,45 @@ class Payment(models.Model):
     """Данные о платежах пользователя"""
 
     PAYMENT_METHODS = [
-        ('cash', 'Наличные'),
-        ('transfer', 'Перевод на счет'),
+        ("cash", "Наличные"),
+        ("transfer", "Перевод на счет"),
     ]
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='payments',
-        verbose_name='Пользователь'
+        related_name="payments",
+        verbose_name="Пользователь",
     )
     pay_date = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Дата платежа',
+        verbose_name="Дата платежа",
     )
     pay_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name='Сумма платежа'
+        max_digits=10, decimal_places=2, verbose_name="Сумма платежа"
     )
     pay_method = models.CharField(
-        max_length=50,
-        choices=PAYMENT_METHODS,
-        verbose_name='Способ оплаты'
+        max_length=50, choices=PAYMENT_METHODS, verbose_name="Способ оплаты"
     )
     paid_course = models.ForeignKey(
         Course,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='payments',
-        verbose_name='Оплаченный курс'
+        related_name="payments",
+        verbose_name="Оплаченный курс",
     )
     paid_lesson = models.ForeignKey(
         Lesson,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='payments',
-        verbose_name='Оплаченный урок'
+        related_name="payments",
+        verbose_name="Оплаченный урок",
     )
 
     def __str__(self):
-        return f'Платеж: {self.user.email} - {self.pay_amount}'
+        return f"Платеж: {self.user.email} - {self.pay_amount}"
 
     class Meta:
-        verbose_name = 'Платеж'
-        verbose_name_plural = 'Платежи'
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"

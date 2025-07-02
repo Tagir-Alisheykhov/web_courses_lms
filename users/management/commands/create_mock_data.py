@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from users.models import User, Payment
+
 from lms.models import Course, Lesson
+from users.models import Payment, User
 
 
 class Command(BaseCommand):
@@ -13,10 +14,7 @@ class Command(BaseCommand):
         email = "your@email.com"
         if not User.objects.filter(email=email).exists():
             user = User.objects.create(
-                email=email,
-                password="123456",
-                phone="+79001234567",
-                city="Москва"
+                email=email, password="123456", phone="+79001234567", city="Москва"
             )
             self.stdout.write(f" ✅ Пользователь создан: {user.email}")
         else:
@@ -27,8 +25,7 @@ class Command(BaseCommand):
         course_name = "Основы программирования"
         if not Course.objects.filter(name=course_name).exists():
             course = Course.objects.create(
-                name=course_name,
-                description="Курс для начинающих программистов."
+                name=course_name, description="Курс для начинающих программистов."
             )
             self.stdout.write(f" ✅ Курс создан: {course.name}")
         else:
@@ -41,7 +38,7 @@ class Command(BaseCommand):
             lesson = Lesson.objects.create(
                 name=lesson_name,
                 description="Первый урок по языку Python.",
-                course=course
+                course=course,
             )
             self.stdout.write(f" ✅ Урок создан: {lesson.name}")
         else:
@@ -52,10 +49,7 @@ class Command(BaseCommand):
         payment_course, created = Payment.objects.get_or_create(
             user=user,
             paid_course=course,
-            defaults={
-                "pay_amount": 10000.00,
-                "pay_method": "transfer"
-            }
+            defaults={"pay_amount": 10000.00, "pay_method": "transfer"},
         )
         if created:
             self.stdout.write(f" ✅ Платеж за курс создан: {payment_course.pay_amount}")
@@ -66,10 +60,7 @@ class Command(BaseCommand):
         payment_lesson, created = Payment.objects.get_or_create(
             user=user,
             paid_lesson=lesson,
-            defaults={
-                "pay_amount": 1500.00,
-                "pay_method": "cash"
-            }
+            defaults={"pay_amount": 1500.00, "pay_method": "cash"},
         )
         if created:
             self.stdout.write(f" ✅ Платеж за урок создан: {payment_lesson.pay_amount}")
