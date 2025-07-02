@@ -4,9 +4,9 @@
 
 [![Django](https://img.shields.io/badge/Django-3.2.18-blue?logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Django REST](https://img.shields.io/badge/DRF-3.16.0-red?logo=json&logoColor=white)](https://www.django-rest-framework.org/)
+[![Django Filter](https://img.shields.io/badge/django--filter-23.1-blue?logo=filter&logoColor=white)](https://django-filter.readthedocs.io/en/stable/)
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
-
 ---
 
 ## 🧰 Установка
@@ -22,23 +22,24 @@ cd WebCoursesLMS
 ### 2. Настройка виртуального окружения
 >Для начала убедитесь, что на вашем ПК установлен `poetry`
 ```bash
-poetry install    # Установка зависимостей
-```
-```bash
 poetry shell    # Активация виртуального окружения 
 ```
+```bash
+poetry install    # Установка зависимостей
+```
 
-### 4. Миграции
--- Выполните миграцию в базу данных
+
+### 3. Миграции
+>Выполните миграцию в базу данных
 ```bash
 python manage.py migrate
 ```
 
-### 5. Запуск сервера
+### 4. Запуск сервера
 ```bash
 python manage.py runserver
 ```
--- После успешного запуска откройте: http://localhost:8000
+>После успешного запуска откройте: http://localhost:8000
 
 
 ### 📄 Лицензия
