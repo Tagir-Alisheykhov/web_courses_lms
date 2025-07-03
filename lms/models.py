@@ -52,6 +52,7 @@ class Lesson(models.Model):
     )
     course = models.ForeignKey(
         Course,
+        related_name="lesson",
         on_delete=models.SET_NULL,
         verbose_name="Название курса",
         help_text="Выберите курс",
