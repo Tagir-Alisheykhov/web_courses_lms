@@ -1,3 +1,7 @@
+"""
+Сериализаторы приложения `users` .
+"""
+
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from users.models import Payment, User
@@ -12,7 +16,7 @@ class PaymentSerializer(ModelSerializer):
 
 
 class UsersSerializer(ModelSerializer):
-    """Сериализатор для модели Пользователи"""
+    """Сериализатор для модели User"""
 
     class Meta:
         model = User

@@ -1,3 +1,7 @@
+"""
+Сериализаторы приложения `lms`.
+"""
+
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from lms.models import Course, Lesson

@@ -1,3 +1,8 @@
+"""
+Создание суперпользователя.
+[>> python manage.py csu ]
+"""
+
 import os
 
 from django.contrib.auth import get_user_model
