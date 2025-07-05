@@ -1,3 +1,9 @@
+"""
+Создание тестовых данных. Наполнение БД.
+[>> python manage.py create_mock_data ]
+"""
+
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
 from lms.models import Course, Lesson
@@ -29,7 +35,7 @@ class Command(BaseCommand):
             )
             self.stdout.write(f" ✅ Курс создан: {course.name}")
         else:
-            course = Course.objects.get(title=course_name)
+            course = Course.objects.get(name=course_name)
             self.stdout.write(f" ℹ️ Курс уже существует: {course.name}")
 
         # 3. Создание урока
@@ -42,7 +48,7 @@ class Command(BaseCommand):
             )
             self.stdout.write(f" ✅ Урок создан: {lesson.name}")
         else:
-            lesson = Lesson.objects.get(title=lesson_name)
+            lesson = Lesson.objects.get(name=lesson_name)
             self.stdout.write(f" ℹ️ Урок уже существует: {lesson.name}")
 
         # 4. Создание платежа за курс
@@ -67,4 +73,16 @@ class Command(BaseCommand):
         else:
             self.stdout.write(" ℹ️ Платеж за урок уже существует")
 
-        # self.stdout.write(self.style.SUCCESS("✅ Все тестовые данные успешно загружены!"))
+        # 6. Создание группы `moderators`
+        group_name = "moderatorsр"
+        if not Group.objects.filter(name=group_name):
+            moderators_group = Group.objects.create(name=group_name)
+            self.stdout.write(
+                f" ✅ Группа модераторов создана: {moderators_group.name}"
+            )
+        else:
+            self.stdout.write(" ℹ️ Группа модераторов уже существует")
+
+        self.stdout.write(
+            self.style.SUCCESS("\n ✅ Все тестовые данные успешно загружены!\n")
+        )

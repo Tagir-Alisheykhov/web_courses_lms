@@ -1,3 +1,7 @@
+"""
+Настройка админ панели для приложения `users`.
+"""
+
 from django.contrib import admin
 
 from users.models import Payment, User

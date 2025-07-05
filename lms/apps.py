@@ -1,3 +1,7 @@
+"""
+Настройки приложения `lms`.
+"""
+
 from django.apps import AppConfig
 
 

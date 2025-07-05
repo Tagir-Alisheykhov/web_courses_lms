@@ -1,3 +1,7 @@
+"""
+Модели для создания объектов приложения `lms`
+"""
+
 from django.db import models
 
 
@@ -17,6 +21,14 @@ class Course(models.Model):
     )
     preview = models.ImageField(
         upload_to="lms/previews/", blank=True, null=True, verbose_name="Превью"
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        help_text="Укажите создателя курса",
+        verbose_name="Создатель курса",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
@@ -58,6 +70,14 @@ class Lesson(models.Model):
         help_text="Выберите курс",
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        help_text="Укажите создателя урока",
+        verbose_name="Создатель урока",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
