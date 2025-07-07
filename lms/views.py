@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson
+from lms.paginators import CustomPagination
 from lms.serializers import (CourseDetailSerializer, CourseSerializer,
                              LessonSerializer)
 from users.permissions import IsModer, IsOwner
@@ -19,6 +20,13 @@ class CourseViewSet(ModelViewSet):
 
     queryset = Course.objects.all()
     filter_backends = []
+    pagination_class = CustomPagination
+
+    def get_serializer_context(self):
+        """Добавление request в контекст сериализатора."""
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
     def get_permissions(self):
         """Проверка прав доступа пользователя."""
@@ -59,6 +67,7 @@ class LessonListAPIView(ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     filter_backends = []
+    pagination_class = CustomPagination
 
 
 class LessonRetrieveAPIView(RetrieveAPIView):
