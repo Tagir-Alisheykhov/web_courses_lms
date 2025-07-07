@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from lms.models import Course
-from users.models import User, Subscription
+from users.models import Subscription, User
 
 
 class SubscriptionTestCase(APITestCase):
