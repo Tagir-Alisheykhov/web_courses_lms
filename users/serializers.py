@@ -33,9 +33,13 @@ class PaymentSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Проверка на то, что выбран либо курс, либо урок"""
         if data.get("course") and data.get("lesson"):
-            raise serializers.ValidationError("Выберите либо курс, либо урок, но не оба сразу.")
+            raise serializers.ValidationError(
+                "Выберите либо курс, либо урок, но не оба сразу."
+            )
         if not data.get("course") and not data.get("lesson"):
-            raise serializers.ValidationError("Необходимо выбрать либо курс, либо урок.")
+            raise serializers.ValidationError(
+                "Необходимо выбрать либо курс, либо урок."
+            )
         return data
 
 

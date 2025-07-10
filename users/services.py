@@ -1,13 +1,13 @@
 """
 Утилиты приложения `users`
 """
+
 import stripe
 from currency_converter import CurrencyConverter
 from rest_framework import status
 from rest_framework.response import Response
 
 from config.settings import STRIPE_API_KEY_SECRET
-
 
 stripe.api_key = STRIPE_API_KEY_SECRET
 
@@ -21,14 +21,11 @@ def conv_rub_to_usd(amount: int = 1) -> float:
 
 def create_stripe_product(product_id, product_name, default_price=None):
     """Создание продукта в `stripe` с ценой"""
-    product_data = {
-        "id": f"prod_{product_id}",
-        "name": product_name
-    }
+    product_data = {"id": f"prod_{product_id}", "name": product_name}
     if default_price is not None or default_price != 0:
         product_data["default_price_data"] = {
             "unit_amount": int(default_price * 100),
-            "currency": "usd"
+            "currency": "usd",
         }
     product = stripe.Product.create(**product_data)
     return product.id, product
@@ -42,10 +39,7 @@ def create_stripe_price(amount, product_id, set_as_default=False):
         currency="usd",
     )
     if set_as_default is True:
-        stripe.Product.modify(
-            product_id,
-            default_price=price.id
-        )
+        stripe.Product.modify(product_id, default_price=price.id)
     return price
 
 
@@ -55,10 +49,12 @@ def create_stripe_session(price_id):
         mode="payment",
         success_url="https://127.0.0.1:8000/",
         cancel_url="https://127.0.0.1:8000/",
-        line_items=[{
-            "price": price_id,  # Принимаем просто строку с ID цены
-            "quantity": 1,
-        }],
+        line_items=[
+            {
+                "price": price_id,
+                "quantity": 1,
+            }
+        ],
     )
     return session.get("id"), session.get("url")
 
@@ -72,26 +68,29 @@ def get_product_from_stripe(prod_id: str) -> Response:
             price = stripe.Price.retrieve(product.default_price)
             price_data = {
                 "id": price.id,
-                "unit_amount": price.unit_amount / 100,  # Конвертируем обратно в доллары
-                "currency": price.currency
+                "unit_amount": price.unit_amount
+                / 100,
+                "currency": price.currency,
             }
-        return Response({
-            "id": product.id,
-            "name": product.name,
-            "default_price": price_data,  # Теперь это объект с данными о цене
-            "active": product.active,
-            "created": product.created,
-            # остальные поля по необходимости
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "id": product.id,
+                "name": product.name,
+                "default_price": price_data,
+                "active": product.active,
+                "created": product.created,
+            },
+            status=status.HTTP_200_OK,
+        )
     except stripe.error.InvalidRequestError as err:
         return Response(
             {"error": f"Product not found in Stripe: {str(err)}"},
-            status=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_404_NOT_FOUND,
         )
     except Exception as err:
         return Response(
             {"error": f"Stripe API error: {str(err)}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 

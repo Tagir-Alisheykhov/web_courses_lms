@@ -1,10 +1,9 @@
 """
 Представления приложения `users`.
 """
-import stripe
+
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import serializers, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
@@ -16,10 +15,12 @@ from stripe import InvalidRequestError
 
 from lms.models import Course
 from users.models import Payment, Subscription, User
-from users.serializers import (PaymentSerializer, UsersSerializer,
-                               PaymentStripeRetrieveSerializer, PaymentListSerializer)
+from users.serializers import (PaymentListSerializer, PaymentSerializer,
+                               PaymentStripeRetrieveSerializer,
+                               UsersSerializer)
 from users.services import (conv_rub_to_usd, create_stripe_price,
-                            create_stripe_session, create_stripe_product, get_product_from_stripe, get_stripe_product)
+                            create_stripe_product, create_stripe_session,
+                            get_product_from_stripe, get_stripe_product)
 
 
 class SubscriptionAPIView(APIView):
@@ -114,17 +115,25 @@ class PaymentCreateAPIView(CreateAPIView):
         Обработка объекта.
         Создание продукта и цены (если не существуют).
         Создание сессии и ссылки на оплату.
+        Body (для создания платежа):
+        "pay_amount": int: <amount>,
+        "pay_method": str: <card/cash/transfer>,
+        "course": int: <course_id>
+        "pay_amount_default": int: <amount> (optional)
         """
         payment = serializer.save(user=self.request.user)
         product = payment.course if payment.course else payment.lesson
-        base_amount = payment.pay_amount_default \
-            if not payment.pay_amount or payment.pay_amount == 0 else payment.pay_amount
+        base_amount = (
+            payment.pay_amount_default or 0
+            if not payment.pay_amount or payment.pay_amount == 0
+            else payment.pay_amount
+        )
         amount_in_dollars = conv_rub_to_usd(base_amount)
         try:
             product_id_stripe, product_obj = create_stripe_product(
                 product_id=str(product.id),
                 product_name=product.name,
-                default_price=amount_in_dollars
+                default_price=amount_in_dollars,
             )
         except InvalidRequestError:
             product_id_stripe = f"prod_{product.id}"

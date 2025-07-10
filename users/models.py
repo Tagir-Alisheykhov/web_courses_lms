@@ -52,7 +52,7 @@ class Payment(models.Model):
     PAYMENT_METHODS = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
-        ("card", "Оплата картой")
+        ("card", "Оплата картой"),
     ]
     user = models.ForeignKey(
         User,
@@ -71,10 +71,7 @@ class Payment(models.Model):
         max_digits=10, decimal_places=2, verbose_name="Сумма платежа"
     )
     pay_amount_default = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True
+        max_digits=10, decimal_places=2, null=True, blank=True
     )
     pay_method = models.CharField(
         max_length=50, choices=PAYMENT_METHODS, verbose_name="Способ оплаты"
@@ -100,14 +97,14 @@ class Payment(models.Model):
         blank=True,
         null=True,
         verbose_name="Id сессии",
-        help_text="Укажите id сессии"
+        help_text="Укажите id сессии",
     )
     link = models.URLField(
         max_length=400,
         blank=True,
         null=True,
         verbose_name="Ссылка на оплату",
-        help_text="Укажите ссылку на оплату"
+        help_text="Укажите ссылку на оплату",
     )
 
     def __str__(self):

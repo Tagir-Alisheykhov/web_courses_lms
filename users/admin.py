@@ -28,7 +28,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "course",
         "lesson",
         "session_id",
-        "link"
+        "link",
     ]
     list_filter = ["pay_date", "pay_amount", "pay_method"]
     search_fields = [

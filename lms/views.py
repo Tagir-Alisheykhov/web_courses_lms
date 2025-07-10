@@ -1,6 +1,7 @@
 """
 Конечные точки приложения `lms`
 """
+
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
@@ -16,9 +17,12 @@ from lms.serializers import (CourseDetailSerializer, CourseSerializer,
 from users.permissions import IsModer, IsOwner
 
 
-@method_decorator(name='list', decorator=swagger_auto_schema(
-    operation_description="Это тестовое описание для эндпоинта"
-))
+@method_decorator(
+    name="list",
+    decorator=swagger_auto_schema(
+        operation_description="Это тестовое описание для эндпоинта"
+    ),
+)
 class CourseViewSet(ModelViewSet):
     """CRUD для модели курса."""
 
