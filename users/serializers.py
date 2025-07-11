@@ -4,28 +4,23 @@
 
 from rest_framework import serializers
 
-from users.models import Payment, Subscription, User
+from users.models import Payment, User
 
-# class SubscriptionSerializer(serializers.ModelSerializer):
-#     """Сериализация для модели Subscription"""
-#
-#     is_signed = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Subscription
-#         fields = ("user", "course", "is_signed")
-#
-#     def get_is_signed(self, instance):
-#         """
-#         Проверяем подписку пользователя на курс.
-#         """
-#         request = self.context.get("request")
-#         if request and request.user.is_authenticated:
-#             return Subscription.objects.filter(
-#                 user=request.user,
-#                 course=instance.course
-#             ).exists()
-#         return False
+
+class PaymentListSerializer(serializers.ModelSerializer):
+    """Получение списка платежей из базы данных приложения"""
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
+
+class PaymentStripeRetrieveSerializer(serializers.ModelSerializer):
+    """Получение детальной информации о платеже по id, напрямую из сервиса Stripe"""
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -34,6 +29,18 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = "__all__"
+
+    def validate(self, data):
+        """Проверка на то, что выбран либо курс, либо урок"""
+        if data.get("course") and data.get("lesson"):
+            raise serializers.ValidationError(
+                "Выберите либо курс, либо урок, но не оба сразу."
+            )
+        if not data.get("course") and not data.get("lesson"):
+            raise serializers.ValidationError(
+                "Необходимо выбрать либо курс, либо урок."
+            )
+        return data
 
 
 class UsersSerializer(serializers.ModelSerializer):

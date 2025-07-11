@@ -11,10 +11,16 @@ from rest_framework.generics import (CreateAPIView, DestroyAPIView,
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from stripe import InvalidRequestError
 
 from lms.models import Course
 from users.models import Payment, Subscription, User
-from users.serializers import PaymentSerializer, UsersSerializer
+from users.serializers import (PaymentListSerializer, PaymentSerializer,
+                               PaymentStripeRetrieveSerializer,
+                               UsersSerializer)
+from users.services import (conv_rub_to_usd, create_stripe_price,
+                            create_stripe_product, create_stripe_session,
+                            get_product_from_stripe, get_stripe_product)
 
 
 class SubscriptionAPIView(APIView):
@@ -87,14 +93,70 @@ class UserDestroyAPIView(DestroyAPIView):
 
 
 class PaymentListAPIView(ListAPIView):
-    """Представление списка платежей пользователя"""
+    """Получение списка платежей из базы данных приложения"""
 
     queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
+    serializer_class = PaymentListSerializer
     filter_backends = [OrderingFilter, DjangoFilterBackend]
     filterset_fields = (
-        "paid_course",
-        "paid_lesson",
+        "course",
+        "lesson",
         "pay_method",
     )
     ordering_fields = ("pay_date",)
+
+
+class PaymentCreateAPIView(CreateAPIView):
+    serializer_class = PaymentSerializer
+    queryset = Payment.objects.all()
+
+    def perform_create(self, serializer):
+        """
+        Обработка объекта.
+        Создание продукта и цены (если не существуют).
+        Создание сессии и ссылки на оплату.
+        Body (для создания платежа):
+        "pay_amount": int: <amount>,
+        "pay_method": str: <card/cash/transfer>,
+        "course": int: <course_id>
+        "pay_amount_default": int: <amount> (optional)
+        """
+        payment = serializer.save(user=self.request.user)
+        product = payment.course if payment.course else payment.lesson
+        base_amount = (
+            payment.pay_amount_default or 0
+            if not payment.pay_amount or payment.pay_amount == 0
+            else payment.pay_amount
+        )
+        amount_in_dollars = conv_rub_to_usd(base_amount)
+        try:
+            product_id_stripe, product_obj = create_stripe_product(
+                product_id=str(product.id),
+                product_name=product.name,
+                default_price=amount_in_dollars,
+            )
+        except InvalidRequestError:
+            product_id_stripe = f"prod_{product.id}"
+            product_obj = get_stripe_product(product_id_stripe)
+        price_id = product_obj.default_price
+        if not price_id:
+            price_id = create_stripe_price(
+                amount=amount_in_dollars,
+                product_id=product_id_stripe,
+            )
+        session_id, payment_link = create_stripe_session(price_id=price_id)
+        payment.session_id = session_id
+        payment.link = payment_link
+        payment.save()
+
+
+class PaymentStripeRetrieveAPIView(RetrieveAPIView):
+    """Получение детальной информации о платеже из сервиса Stripe"""
+
+    serializer_class = PaymentStripeRetrieveSerializer
+    queryset = Payment.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        """Получение информации об объекте"""
+        prod_id = f"prod_{kwargs.get('pk')}"
+        return get_product_from_stripe(prod_id)

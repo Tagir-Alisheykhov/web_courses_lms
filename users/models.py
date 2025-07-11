@@ -52,12 +52,16 @@ class Payment(models.Model):
     PAYMENT_METHODS = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
+        ("card", "Оплата картой"),
     ]
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="payments",
         verbose_name="Пользователь",
+        help_text="Укажите пользователя",
+        null=True,
+        blank=True,
     )
     pay_date = models.DateTimeField(
         auto_now_add=True,
@@ -66,28 +70,45 @@ class Payment(models.Model):
     pay_amount = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name="Сумма платежа"
     )
+    pay_amount_default = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     pay_method = models.CharField(
         max_length=50, choices=PAYMENT_METHODS, verbose_name="Способ оплаты"
     )
-    paid_course = models.ForeignKey(
+    course = models.ForeignKey(
         Course,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="payments",
-        verbose_name="Оплаченный курс",
+        verbose_name="Курс",
     )
-    paid_lesson = models.ForeignKey(
+    lesson = models.ForeignKey(
         Lesson,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="payments",
-        verbose_name="Оплаченный урок",
+        verbose_name="Урок",
+    )
+    session_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Id сессии",
+        help_text="Укажите id сессии",
+    )
+    link = models.URLField(
+        max_length=400,
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на оплату",
+        help_text="Укажите ссылку на оплату",
     )
 
     def __str__(self):
-        return f"Платеж: {self.user.email} - {self.pay_amount}"
+        return f"Платеж {self.session_id}: {self.user.email} - {self.pay_amount}"
 
     class Meta:
         verbose_name = "Платеж"
