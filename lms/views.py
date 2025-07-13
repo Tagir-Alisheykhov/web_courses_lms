@@ -1,6 +1,7 @@
 """
 Конечные точки приложения `lms`
 """
+
 from datetime import timedelta
 
 from django.utils import timezone
@@ -9,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson

@@ -31,8 +31,7 @@ class Course(models.Model):
         blank=True,
     )
     last_update = models.DateTimeField(
-        auto_now=True,
-        verbose_name="последнее обновление"
+        auto_now=True, verbose_name="последнее обновление"
     )
 
     def __str__(self):
@@ -84,8 +83,7 @@ class Lesson(models.Model):
         blank=True,
     )
     last_update = models.DateTimeField(
-        auto_now=True,
-        verbose_name="последнее обновление"
+        auto_now=True, verbose_name="последнее обновление"
     )
 
     def __str__(self):

@@ -1,13 +1,15 @@
 """
 Celery задачи
 """
+
 import os
+
+from celery import shared_task
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.urls import reverse
 from dotenv import load_dotenv
-from celery import shared_task
-from django.core.mail import send_mail
-from django.core.exceptions import ObjectDoesNotExist
 
 from lms.models import Course
 from users.models import Subscription
@@ -30,13 +32,13 @@ def course_update_notification(course_id) -> None:
             return
         current_site = get_current_site(None)
         domain = current_site.domain
-        course_url = reverse('lms:courses-detail', kwargs={'pk': course_id})
+        course_url = reverse("lms:courses-detail", kwargs={"pk": course_id})
         full_url = f"http://{domain}{course_url}"
         send_mail(
             subject=f"Обновление курса '{course.name}'",
             message=f"Курс обновился.\nПерейдите по ссылке для просмотра: {full_url}",
             from_email=sender,
-            recipient_list=recipients
+            recipient_list=recipients,
         )
         print(f"Уведомления отправлены {len(recipients)} подписчикам курса {course_id}")
     except ObjectDoesNotExist:

@@ -1,17 +1,19 @@
 """
 Утилиты приложения `users`
 """
+
 import os
 
 import stripe
-from dotenv import load_dotenv
 from currency_converter import CurrencyConverter
+from dotenv import load_dotenv
 from rest_framework import status
 from rest_framework.response import Response
 
 from config.settings import STRIPE_API_KEY_SECRET
 
 load_dotenv()
+
 stripe.api_key = STRIPE_API_KEY_SECRET
 main_page = os.getenv("MAIN_PAGE")
 
@@ -72,8 +74,7 @@ def get_product_from_stripe(prod_id: str) -> Response:
             price = stripe.Price.retrieve(product.default_price)
             price_data = {
                 "id": price.id,
-                "unit_amount": price.unit_amount
-                / 100,
+                "unit_amount": price.unit_amount / 100,
                 "currency": price.currency,
             }
         return Response(

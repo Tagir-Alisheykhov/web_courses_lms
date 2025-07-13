@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_celery_beat",
     "rest_framework",
-    "drf_yasg",
     "django_filters",
+    "drf_yasg",
     "users",
     "lms",
 ]
@@ -65,15 +65,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": (
-        "django_filters.rest_framework.DjangoFilterBackend"
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend"),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
 SIMPLE_JWT = {
@@ -116,7 +112,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -130,7 +125,6 @@ AUTH_USER_MODEL = "users.User"
 STRIPE_API_KEY_SECRET = os.getenv("STRIPE_API_KEY_SECRET")
 STRIPE_API_KEY_PUB = os.getenv("STRIPE_API_KEY_PUB")
 
-
 # Настройка для celery
 # URL-адрес брокера сообщений
 CELERY_BROKER_URL = os.getenv("CELERY_URL")
@@ -142,6 +136,14 @@ CELERY_TIMEZONE = "Europe/Moscow"
 # CELERY_TASK_TRACK_STARTED = True
 # Максимальное время на выполнение задачи
 # CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# celery-beat настройка
+CELERY_BEAT_SCHEDULE = {
+    "deactivate-inactive-users": {
+        "task": "users.tasks.last_user_login",
+        "schedule": 10.0,
+    },
+}
 
 # Настройка Redis
 CACHE_ENABLED = True
