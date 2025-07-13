@@ -12,11 +12,9 @@
 [![drf-yasg](https://img.shields.io/badge/drf--yasg-1.21.6-brightgreen?logo=swagger&logoColor=white)](https://drf-yasg.readthedocs.io/en/stable/readme.html#usage)
 [![django-cors-headers](https://img.shields.io/badge/django--cors--headers-4.3.1-success?logo=cors&logoColor=white)](https://pypi.org/project/django-cors-headers/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
-# redis
-## celery
->https://docs.celeryq.dev/en/stable/
-## celery-beat
->https://pypi.org/project/django-celery-beat/
+[![Redis](https://img.shields.io/badge/Redis-7.0+-red?logo=redis&logoColor=white)](https://redis.readthedocs.io/en/stable/index.html)
+[![Celery](https://img.shields.io/badge/Celery-5.3+-informational?logo=celery&logoColor=white)](https://docs.celeryq.dev/en/stable/)
+[![Celery Beat](https://img.shields.io/badge/Celery_Beat-2.5.0-blueviolet?logo=clockify&logoColor=white)](https://pypi.org/project/django-celery-beat/)
 
 ---
 
@@ -130,6 +128,7 @@ python manage.py runserver
 - Документация API: `drf-yasg` (`Swagger`/`ReDoc`)
 - Платежная система: `Stripe API`
 - Конвертация валют: `CurrencyConverter`
+- Фоновые задачи: `Celery`
 
 ---
 
