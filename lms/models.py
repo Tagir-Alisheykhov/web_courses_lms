@@ -30,6 +30,10 @@ class Course(models.Model):
         null=True,
         blank=True,
     )
+    last_update = models.DateTimeField(
+        auto_now=True,
+        verbose_name="последнее обновление"
+    )
 
     def __str__(self):
         return self.name
@@ -78,6 +82,10 @@ class Lesson(models.Model):
         verbose_name="Создатель урока",
         null=True,
         blank=True,
+    )
+    last_update = models.DateTimeField(
+        auto_now=True,
+        verbose_name="последнее обновление"
     )
 
     def __str__(self):

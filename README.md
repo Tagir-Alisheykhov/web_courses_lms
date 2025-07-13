@@ -12,6 +12,11 @@
 [![drf-yasg](https://img.shields.io/badge/drf--yasg-1.21.6-brightgreen?logo=swagger&logoColor=white)](https://drf-yasg.readthedocs.io/en/stable/readme.html#usage)
 [![django-cors-headers](https://img.shields.io/badge/django--cors--headers-4.3.1-success?logo=cors&logoColor=white)](https://pypi.org/project/django-cors-headers/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
+# redis
+## celery
+>https://docs.celeryq.dev/en/stable/
+## celery-beat
+>https://pypi.org/project/django-celery-beat/
 
 ---
 

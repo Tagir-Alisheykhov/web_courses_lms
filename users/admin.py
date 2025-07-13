@@ -4,7 +4,7 @@
 
 from django.contrib import admin
 
-from users.models import Payment, User
+from users.models import Payment, User, Subscription
 
 
 @admin.register(User)
@@ -39,3 +39,12 @@ class PaymentAdmin(admin.ModelAdmin):
         "course",
         "lesson",
     ]
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    """Отображение данных о подписках в админ-панели"""
+
+    list_display = ("user", "course",)
+    list_filter = ("course",)
+    search_fields = ("user", "course",)
