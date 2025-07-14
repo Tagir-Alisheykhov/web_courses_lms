@@ -2,14 +2,20 @@
 Утилиты приложения `users`
 """
 
+import os
+
 import stripe
 from currency_converter import CurrencyConverter
+from dotenv import load_dotenv
 from rest_framework import status
 from rest_framework.response import Response
 
 from config.settings import STRIPE_API_KEY_SECRET
 
+load_dotenv()
+
 stripe.api_key = STRIPE_API_KEY_SECRET
+main_page = os.getenv("MAIN_PAGE")
 
 
 def conv_rub_to_usd(amount: int = 1) -> float:
@@ -47,8 +53,8 @@ def create_stripe_session(price_id):
     """Создание сессии для оплаты в `stripe`"""
     session = stripe.checkout.Session.create(
         mode="payment",
-        success_url="https://127.0.0.1:8000/",
-        cancel_url="https://127.0.0.1:8000/",
+        success_url=main_page,
+        cancel_url=main_page,
         line_items=[
             {
                 "price": price_id,
@@ -68,8 +74,7 @@ def get_product_from_stripe(prod_id: str) -> Response:
             price = stripe.Price.retrieve(product.default_price)
             price_data = {
                 "id": price.id,
-                "unit_amount": price.unit_amount
-                / 100,
+                "unit_amount": price.unit_amount / 100,
                 "currency": price.currency,
             }
         return Response(

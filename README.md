@@ -12,6 +12,9 @@
 [![drf-yasg](https://img.shields.io/badge/drf--yasg-1.21.6-brightgreen?logo=swagger&logoColor=white)](https://drf-yasg.readthedocs.io/en/stable/readme.html#usage)
 [![django-cors-headers](https://img.shields.io/badge/django--cors--headers-4.3.1-success?logo=cors&logoColor=white)](https://pypi.org/project/django-cors-headers/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
+[![Redis](https://img.shields.io/badge/Redis-7.0+-red?logo=redis&logoColor=white)](https://redis.readthedocs.io/en/stable/index.html)
+[![Celery](https://img.shields.io/badge/Celery-5.3+-informational?logo=celery&logoColor=white)](https://docs.celeryq.dev/en/stable/)
+[![Celery Beat](https://img.shields.io/badge/Celery_Beat-2.5.0-blueviolet?logo=clockify&logoColor=white)](https://pypi.org/project/django-celery-beat/)
 
 ---
 
@@ -34,14 +37,30 @@ poetry install    # Установка зависимостей в виртуа�
 poetry shell    # Активация виртуального окружения 
 ```
 
+### 3. Заполнение переменных окружения `.env` 
+> Скопируйте шаблонный файл (`.env.example`) в корневой директории проекта и создайте 
+> `.env` (без `.example`), заполнив 
+> конфигурационные поля реальными данными. Программа автоматически 
+> загрузит эти данные для работы приложения. 
 
-### 3. Миграции
+### 4. Миграции
 >Выполните миграцию в базу данных
 ```bash
 python manage.py migrate
 ```
 
-### 4. Наполнение базы данных (опционально)
+### 5. Запуск Celery `(отложенные и периодические задачи)`
+> `celery` и `celery-beat` установились на этапе инициализации 
+> виртуального окружения. Две следующие команды должны быть запущенны параллельно 
+> в разных окнах.
+```bash
+celery -A config worker -l info -P eventlet  # Запускаем `celery worker`
+```
+```bash
+celery -A config beat -l info -S django  # Запускаем `celery-beat`
+```
+
+### 6. Наполнение базы данных `(опционально)`
 
 > После успешной миграции, вы можете наполнить базу данных тестовыми данными (для моделей: User; Payment;
 > Course; Lesson, а также для класса Group). Для этого выполните следующую команду:
@@ -49,14 +68,14 @@ python manage.py migrate
 python manage.py create_mock_data
 ```
 
-### 5. Создание суперпользователя (опционально)
+### 7. Создание суперпользователя `(опционально)`
 
 > Добавьте суперпользователя для взатмодействия с программой и для входа в админ-панель
 ```bash
 python manage.py csu
 ```
 
-### 6. Запуск сервера
+### 8. Запуск сервера
 ```bash
 python manage.py runserver
 ```
@@ -108,6 +127,7 @@ python manage.py runserver
 - Документация API: `drf-yasg` (`Swagger`/`ReDoc`)
 - Платежная система: `Stripe API`
 - Конвертация валют: `CurrencyConverter`
+- Фоновые задачи: `Celery`
 
 ---
 

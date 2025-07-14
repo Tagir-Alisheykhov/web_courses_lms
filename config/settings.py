@@ -26,9 +26,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
+    "django_celery_beat",
     "rest_framework",
-    "drf_yasg",
     "django_filters",
+    "drf_yasg",
     "users",
     "lms",
 ]
@@ -72,7 +73,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1440),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
@@ -111,7 +112,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -121,5 +121,47 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 AUTH_USER_MODEL = "users.User"
 
+# Интеграция сервиса Stripe
 STRIPE_API_KEY_SECRET = os.getenv("STRIPE_API_KEY_SECRET")
 STRIPE_API_KEY_PUB = os.getenv("STRIPE_API_KEY_PUB")
+
+# Настройка для celery
+# URL-адрес брокера сообщений
+CELERY_BROKER_URL = os.getenv("CELERY_URL")
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = os.getenv("CELERY_URL")
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Europe/Moscow"
+# Флаг отслеживания выполнения задач
+# CELERY_TASK_TRACK_STARTED = True
+# Максимальное время на выполнение задачи
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# celery-beat настройка
+CELERY_BEAT_SCHEDULE = {
+    "deactivate-inactive-users": {
+        "task": "users.tasks.last_user_login",
+        "schedule": 10.0,
+    },
+}
+
+# Настройка Redis
+CACHE_ENABLED = True
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": os.getenv("REDIS_BACKEND"),
+            "LOCATION": os.getenv("REDIS_LOCATION"),
+        }
+    }
+
+# Настройка отправки уведомлений на почту.
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
