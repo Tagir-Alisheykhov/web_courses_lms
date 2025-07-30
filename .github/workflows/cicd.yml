@@ -25,7 +25,7 @@ jobs:
         version: "2.1.1"
         virtualenvs-create: true
         virtualenvs-in-project: false
-        virtualenvs-path: {cache-dir}/virtualenvs
+        virtualenvs-path: "${{ runner.temp }}/virtualenvs"
         installer-parallel: true
 
     - name: Cache Poetry virtualenv
