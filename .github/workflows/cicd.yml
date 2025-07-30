@@ -28,19 +28,19 @@ jobs:
         virtualenvs-path: "${{ runner.temp }}/virtualenvs"
         installer-parallel: true
 
-    - name: Cache Poetry virtualenv
-      uses: actions/cache@v3
-      id: cache-venv
-      with:
-        path: ~/.cache/pypoetry/virtualenvs
-        key: venv-${{ hashFiles('pyproject.toml') }}
-
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pypoetry
-        key: deps-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
-        restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
+#    - name: Cache Poetry virtualenv
+#      uses: actions/cache@v3
+#      id: cache-venv
+#      with:
+#        path: ~/.cache/pypoetry/virtualenvs
+#        key: venv-${{ hashFiles('pyproject.toml') }}
+#
+#    - name: Cache dependencies
+#      uses: actions/cache@v3
+#      with:
+#        path: ~/.cache/pypoetry
+#        key: deps-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+#        restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
 
     - name: Install dependencies
       run: |
@@ -75,7 +75,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Check out code
         uses: actions/checkout@v3
 
@@ -91,9 +90,7 @@ jobs:
       - name: Add Poetry to PATH
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-          echo "Poetry path: $(which poetry)"
-          poetry --version
-      
+          poetry --version || echo "Poetry not found in PATH"
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.8.1
