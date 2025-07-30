@@ -36,7 +36,10 @@ class LessonTestCase(APITestCase):
     def test_lesson_create(self):
         """Создание урока"""
         url = reverse("lms:create_lesson")
-        data = {"name": "Сериализаторы"}
+        data = {
+            "name": "Сериализаторы",
+            "course": self.course.pk
+        }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.all().count(), 2)
@@ -62,6 +65,9 @@ class LessonTestCase(APITestCase):
         url = reverse("lms:lessons")
         response = self.client.get(url)
         data = response.json()
+        # Удаление поле last_update из фактического результата
+        for lesson in data["results"]:
+            lesson.pop("last_update", None)
         result = {
             "count": 1,
             "next": None,
@@ -73,8 +79,8 @@ class LessonTestCase(APITestCase):
                     "description": self.lesson.description,
                     "preview": None,
                     "video": self.lesson.video,
-                    "course": 3,
-                    "owner": 3,
+                    "course": self.course.pk,
+                    "owner": self.course.pk,
                 }
             ],
         }

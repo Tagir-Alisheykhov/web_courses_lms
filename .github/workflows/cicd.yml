@@ -1,0 +1,107 @@
+name: CI Django with Postgres
+
+on:
+  push:
+    branches: [main]
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        cache: 'poetry'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: "2.1.1"
+        virtualenvs-create: true
+        virtualenvs-in-project: false
+        virtualenvs-path: {cache-dir}/virtualenvs
+        installer-parallel: true
+
+    - name: Cache Poetry virtualenv
+      uses: actions/cache@v3
+      id: cache-venv
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: venv-${{ hashFiles('pyproject.toml') }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: deps-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+        restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
+
+    - name: Install dependencies
+      run: |
+        poetry config virtualenvs.in-project false
+        poetry install --no-root
+
+    - name: Run migrations
+      run: poetry run python manage.py migrate
+
+    - name: Run tests
+      run: poetry run python manage.py test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log in in Docker Hub
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login - u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }} .
+
+      - name: Push Docker image in Docker hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Prepare server directories
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
+            mkdir -p ~/web_courses_lms/{media,static}
+            chown -R 1000:1000 ~/web_courses_lms
+          "
+
+      - name: Deploy application
+        run: |
+          # Копируем файл docker-compose (поддерживаем оба варианта имени)
+          if [ -f "docker-compose.yml" ]; then
+            scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/docker-compose.yml
+          else
+            scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/
+          fi
+      
+          # Копируем .env.prod как .env
+          scp .env.prod ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/.env
+      
+          # Запускаем контейнеры через docker compose (без дефиса!)
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
+            cd ~/web_courses_lms
+            docker compose pull
+            docker compose up -d --build
+          "
