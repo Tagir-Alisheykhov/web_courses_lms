@@ -1,3 +1,7 @@
+"""
+Настройки приложения `users`.
+"""
+
 from django.apps import AppConfig
 
 
