@@ -28,6 +28,10 @@ jobs:
         virtualenvs-path: "${{ runner.temp }}/virtualenvs"
         installer-parallel: true
 
+    - name: Add Poetry to PATH
+      run: |
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
     - name: Cache Poetry virtualenv
       uses: actions/cache@v3
       id: cache-venv
@@ -62,7 +66,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Log in in Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login - u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }} .
@@ -99,7 +103,7 @@ jobs:
           # Копируем .env.prod как .env
           scp .env.prod ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/.env
       
-          # Запускаем контейнеры через docker compose (без дефиса!)
+          # Запуск контейнера через docker compose
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
             cd ~/web_courses_lms
             docker compose pull
