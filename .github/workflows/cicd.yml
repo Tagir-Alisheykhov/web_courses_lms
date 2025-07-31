@@ -52,12 +52,12 @@ jobs:
       run: |
         echo "SECRET_KEY=test-secret-key-1234567890" > .env
         echo "DEBUG=True" >> .env
-        echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/test_db" >> .env
+        echo "DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/test_db" >> .env
         echo "CACHE_ENABLED=False" >> .env
         echo "NAME=test_db" >> .env
         echo "USER=postgres" >> .env
         echo "PASSWORD=postgres" >> .env
-        echo "HOST=postgres" >> .env
+        echo "HOST=127.0.0.1" >> .env
         echo "PORT=5432" >> .env
 
     - name: Display .env content
