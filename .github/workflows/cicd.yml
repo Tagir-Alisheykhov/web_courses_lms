@@ -21,25 +21,54 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Check out code
+      uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
         python-version: "3.11"
 
-    - uses: snok/install-poetry@v1
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
       with:
         version: "2.1.1"
 
-    - run: |
-        echo "SECRET_KEY=test-key-123" > .env
+    - name: Cache Poetry virtualenv
+      uses: actions/cache@v3
+      id: cache-venv
+      with:
+        path: ~/.cache/pypoetry/virtualenvs
+        key: venv-${{ hashFiles('pyproject.toml') }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pypoetry
+        key: deps-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+        restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
+
+    - name: Set up environment
+      run: |
+        echo "SECRET_KEY=test-secret-key-1234567890" > .env
+        echo "DEBUG=True" >> .env
         echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/test_db" >> .env
+        echo "REDIS_BACKEND=django_redis.cache.RedisCache" >> .env
+        echo "REDIS_LOCATION=redis://redis:6379/1" >> .env
 
-    - run: poetry install --no-root
+    - name: Install dependencies
+      run: |
+#        poetry config virtualenvs.in-project false
+        poetry install --no-root
 
-    - run: poetry run python manage.py migrate
+    - name: Wait for PostgreSQL
+      run: sleep 5
 
-    - run: poetry run python manage.py test
+    - name: Run migrations
+      run: poetry run python manage.py migrate
+
+    - name: Run tests
+      run: poetry run python manage.py test
 
   build:
     needs: test
