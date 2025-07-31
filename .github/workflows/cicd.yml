@@ -24,7 +24,6 @@ jobs:
 
     - name: Start services with Docker Compose
       run: |
-        # Создаём .env файл для Docker Compose
         echo "POSTGRES_DB=web_courses_lms" >> .env
         echo "POSTGRES_USER=postgres" >> .env
         echo "POSTGRES_PASSWORD=password" >> .env
