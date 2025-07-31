@@ -54,11 +54,11 @@ jobs:
       run: |
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
         echo "DEBUG=${{ secrets.DEBUG }}" >> .env
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-        echo "DB_HOST=db" >> .env
-        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DB_NAME=web_courses_lms" >> .env
+        echo "DB_USER=postgres" >> .env
+        echo "DB_PASSWORD=password" >> .env
+        echo "DB_HOST=postgres" >> .env
+        echo "DB_PORT=5432" >> .env
         echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
         echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
 
