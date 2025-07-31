@@ -21,13 +21,7 @@ jobs:
       uses: snok/install-poetry@v1
       with:
         version: "2.1.1"
-
-    - name: Cache Poetry virtualenv
-      uses: actions/cache@v3
-      id: cache-venv
-      with:
-        path: ~/.cache/pypoetry/virtualenvs
-        key: venv-${{ hashFiles('pyproject.toml') }}
+        virtualenvs-in-project: false
 
     - name: Cache dependencies
       uses: actions/cache@v3
@@ -38,7 +32,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install --no-root
+        poetry install --no-interaction --no-root
+        poetry install --no-interaction
 
     - name: Run migrations
       run: poetry run python manage.py migrate
