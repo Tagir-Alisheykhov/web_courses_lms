@@ -136,7 +136,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           mkdir -p /var/www/web_courses_lms
-          cd var/www/web_courses_lms
+          cd /var/www/web_courses_lms
           docker compose down || true
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }}
           docker compose up -d
