@@ -58,7 +58,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-#        poetry config virtualenvs.in-project false
         poetry install --no-root
 
     - name: Wait for PostgreSQL
