@@ -81,11 +81,11 @@ jobs:
 
     - name: Run migrations
       run: |
-        docker compose exec web poetry run python manage.py migrate
+        docker compose exec web python manage.py migrate
 
     - name: Run tests
       run: |
-        docker compose exec web poetry run python manage.py test
+        docker compose exec web python manage.py test
 
     - name: Stop services
       run: docker compose down
