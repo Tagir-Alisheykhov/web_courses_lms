@@ -134,6 +134,7 @@ jobs:
 
       - name: Deploy to server
         run: |
+          scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/var/www/web_courses_lms/          
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           mkdir -p /var/www/web_courses_lms
           cd /var/www/web_courses_lms
