@@ -83,7 +83,7 @@ SIMPLE_JWT = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.getenv("NAME"),
         "USER": os.getenv("USER"),
         "PASSWORD": os.getenv("PASSWORD"),
@@ -152,8 +152,7 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Настройка Redis
-# CACHE_ENABLED = True
-CACHE_ENABLED = os.getenv("CACHE_ENABLED", "False").lower() == "true"
+CACHE_ENABLED = True
 if CACHE_ENABLED:
     CACHES = {
         "default": {
@@ -161,13 +160,6 @@ if CACHE_ENABLED:
             "LOCATION": os.getenv("REDIS_LOCATION"),
         }
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-        }
-    }
-
 
 # Настройка отправки уведомлений на почту.
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
