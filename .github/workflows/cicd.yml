@@ -33,6 +33,8 @@ jobs:
         echo "DEBUG=False" >> .env
         echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
         echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
+        echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> .env
+        echo "GITHUB_SHA=${{ github.sha }}" >> .env
         docker compose up -d --build
 
     - name: Wait for PostgreSQL to be ready
