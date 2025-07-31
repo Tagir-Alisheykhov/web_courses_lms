@@ -9,109 +9,55 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 15s
-          --health-timeout 10s
-          --health-retries 50
-          --env POSTGRES_INITDB_ARGS="--no-sync"
-
     steps:
     - name: Check out code
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: "2.1.1"
-        virtualenvs-in-project: true
-
-    - name: Cache dependencies
+    - name: Cache Docker layers
       uses: actions/cache@v3
       with:
-        path: ~/.cache/pypoetry
-        key: deps-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
-        restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile*') }}
 
-    - name: Install dependencies
+    - name: Start services with Docker Compose
       run: |
-        poetry install --no-root
-
-    - name: Create .env file
-      run: |
+        # Создаём .env файл для Docker Compose
+        echo "POSTGRES_DB=web_courses_lms" >> .env
+        echo "POSTGRES_USER=postgres" >> .env
+        echo "POSTGRES_PASSWORD=password" >> .env
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-        echo "DEBUG=${{ secrets.DEBUG }}" >> .env
-        echo "DB_NAME=web_courses_lms" >> .env
-        echo "DB_USER=postgres" >> .env
-        echo "DB_PASSWORD=password" >> .env
-        echo "DB_HOST=postgres" >> .env
-        echo "DB_PORT=5432" >> .env
-        echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
-        echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
+        echo "DEBUG=False" >> .env
 
-    - name: Add delay before checks
-      run: sleep 30
+        # Запускаем все сервисы в фоновом режиме
+        docker-compose up -d --build
 
-    - name: Check PostgreSQL port
+    - name: Wait for PostgreSQL to be ready
       run: |
-        timeout 10 bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done' || (echo "Port 5432 is not open" && exit 1)
-
-    - name: Wait for PostgreSQL to be ready (Docker Inspect)
-      run: |
-        until [ "$(docker inspect -f '{{.State.Health.Status}}' postgres)" = "healthy" ]; do
-          echo "Waiting for PostgreSQL HEALTHCHECK..."
-          sleep 5
-        done
-
-    - name: Wait for PostgreSQL to be ready (psql)
-      run: |
-        until psql -h postgres -U postgres -c '\l'; do
+        until docker exec db pg_isready -q; do
           echo "Waiting for PostgreSQL..."
           sleep 5
         done
 
-    - name: Check PostgreSQL version
-      run: docker run --rm postgres:15-alpine pg_isready
-
-    - name: Show detailed PostgreSQL logs
-      run: docker logs postgres --details || true
+    - name: Wait for Redis to be ready
+      run: |
+        until docker exec redis redis-cli ping | grep PONG; do
+          echo "Waiting for Redis..."
+          sleep 5
+        done
 
     - name: Run migrations
-      run: poetry run python manage.py migrate
+      run: |
+        docker-compose exec web poetry run python manage.py migrate
 
     - name: Run tests
-      run: poetry run python manage.py test
+      run: |
+        docker-compose exec web poetry run python manage.py test
 
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Log in in Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }} .
-
-      - name: Push Docker image in Docker hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }}
+    - name: Stop services
+      run: docker-compose down
 
   deploy:
     needs: build
