@@ -132,32 +132,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Prepare server directories
+      - name: Deploy to server
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
-            mkdir -p ~/web_courses_lms/{media,static}
-            chown -R 1000:1000 ~/web_courses_lms
-          "
-
-      - name: Deploy application
-        run: |
-          # Очистка предыдущих файлов (кроме данных)
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
-            cd ~/web_courses_lms
-            rm -f docker-compose.yml .env 2>/dev/null || true
-          "
-          
-          # Копируем новые файлы
-          if [ -f "docker-compose.yml" ]; then
-            scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/
-          fi
-          
-          scp .env.prod ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/web_courses_lms/.env
-          
-          # Перезапуск контейнеров
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "
-            cd ~/web_courses_lms
-            docker compose down 2>/dev/null || true
-            docker compose pull
-            docker compose up -d --build
-          "
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p /var/www/web_courses_lms
+          cd var/www/web_courses_lms
+          docker compose down || true
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }}
+          docker compose up -d
+          EOF

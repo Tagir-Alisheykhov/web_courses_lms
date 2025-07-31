@@ -1,5 +1,4 @@
 services:
-
   web:
     image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
     volumes:
