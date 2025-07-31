@@ -49,8 +49,9 @@ jobs:
         restore-keys: deps-${{ hashFiles('pyproject.toml') }}-
 
     - name: Set up environment
-      run: | 
-        cp .env.ci .env
+      run: |
+        echo "SECRET_KEY=test-secret-key-1234567890" > .env
+        echo "DEBUG=True" >> .env
         echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/test_db" >> .env
 
     - name: Install dependencies
