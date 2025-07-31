@@ -32,7 +32,7 @@ jobs:
         echo "DEBUG=False" >> .env
 
         # Запускаем все сервисы в фоновом режиме
-        docker-compose up -d --build
+        docker compose up -d --build
 
     - name: Wait for PostgreSQL to be ready
       run: |
@@ -50,14 +50,14 @@ jobs:
 
     - name: Run migrations
       run: |
-        docker-compose exec web poetry run python manage.py migrate
+        docker compose exec web poetry run python manage.py migrate
 
     - name: Run tests
       run: |
-        docker-compose exec web poetry run python manage.py test
+        docker compose exec web poetry run python manage.py test
 
     - name: Stop services
-      run: docker-compose down
+      run: docker compose down
 
   build:
     needs: test
