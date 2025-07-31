@@ -21,7 +21,7 @@ jobs:
       uses: snok/install-poetry@v1
       with:
         version: "2.1.1"
-        virtualenvs-in-project: false
+        virtualenvs-in-project: true
 
     - name: Cache dependencies
       uses: actions/cache@v3
