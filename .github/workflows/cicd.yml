@@ -79,9 +79,24 @@ jobs:
         docker compose logs redis
         exit 1
 
+    - name: Check database connection
+      run: |
+        docker compose exec web python -c "
+        import os, psycopg2;
+        conn = psycopg2.connect(
+            dbname=os.getenv('POSTGRES_DB'),
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD'),
+            host=os.getenv('POSTGRES_HOST'),
+            port=os.getenv('POSTGRES_PORT')
+        );
+        print('Connection successful!');
+        conn.close()
+        "
+
     - name: Run migrations
       run: |
-        docker compose exec web python manage.py migrate
+        docker compose exec web python manage.py migrate --noinput
 
     - name: Run tests
       run: |
