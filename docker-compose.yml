@@ -1,5 +1,3 @@
-version: "3.11"
-
 services:
 
   web:
@@ -92,3 +90,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  media:
+  statis:
