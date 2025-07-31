@@ -84,8 +84,10 @@ services:
     networks:
       - app_network
 
+
 networks:
   app_network:
+
 
 volumes:
   postgres_data:
