@@ -3,7 +3,7 @@ version: "3.11"
 services:
 
   web:
-    image: ${{ secrets.DOCKER_HUB_USERNAME }}//web_courses_lms:${{ github.sha }}
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
     volumes:
       - media:/app/media
       - static:/app/static
