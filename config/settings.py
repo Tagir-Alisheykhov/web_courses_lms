@@ -152,7 +152,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # Настройка Redis
-CACHE_ENABLED = True
+# CACHE_ENABLED = True
+CACHE_ENABLED = os.getenv("CACHE_ENABLED", "False").lower() == "true"
 if CACHE_ENABLED:
     CACHES = {
         "default": {
@@ -160,6 +161,13 @@ if CACHE_ENABLED:
             "LOCATION": os.getenv("REDIS_LOCATION"),
         }
     }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+
 
 # Настройка отправки уведомлений на почту.
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
