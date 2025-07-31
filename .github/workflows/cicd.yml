@@ -39,13 +39,23 @@ jobs:
         echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> .env
         echo "GITHUB_SHA=${{ github.sha }}" >> .env
         docker compose up -d --build
+        docker compose logs db
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        until docker exec db pg_isready -q; do
-          echo "Waiting for PostgreSQL..."
+        echo "Checking PostgreSQL health..."
+        for i in {1..30}; do
+          if [ $(docker compose ps -q db) ] && \
+             [ "$(docker inspect -f '{{.State.Health.Status}}' $(docker compose ps -q db))" = "healthy" ]; then
+            echo "PostgreSQL is ready!"
+            exit 0
+          fi
+          echo "Waiting for PostgreSQL... ($i/30)"
           sleep 5
         done
+        echo "PostgreSQL failed to start"
+        docker compose logs db
+        exit 1
 
     - name: Wait for Redis to be ready
       run: |
