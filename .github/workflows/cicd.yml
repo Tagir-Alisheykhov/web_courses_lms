@@ -58,8 +58,8 @@ jobs:
         echo "SECRET_KEY=test-secret-key-1234567890" > .env
         echo "DEBUG=True" >> .env
         echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/test_db" >> .env
-        echo "REDIS_BACKEND=django_redis.cache.RedisCache" >> .env
-        echo "REDIS_LOCATION=redis://redis:6379/1" >> .env
+        echo "CELERY_BROKER_URL=redis://redis:6379/0" >> .env
+        echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
 
     - name: Install dependencies
       run: |
