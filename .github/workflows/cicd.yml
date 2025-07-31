@@ -20,11 +20,6 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-
     steps:
     - name: Check out code
       uses: actions/checkout@v3
@@ -58,8 +53,7 @@ jobs:
         echo "SECRET_KEY=test-secret-key-1234567890" > .env
         echo "DEBUG=True" >> .env
         echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/test_db" >> .env
-        echo "CELERY_BROKER_URL=redis://redis:6379/0" >> .env
-        echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
+        echo "CACHE_ENABLED=False" >> .env
 
     - name: Install dependencies
       run: |
