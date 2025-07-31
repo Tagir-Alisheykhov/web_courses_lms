@@ -20,9 +20,9 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 30
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 50
           --env POSTGRES_INITDB_ARGS="--no-sync"
 
     steps:
@@ -64,42 +64,31 @@ jobs:
         echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
 
     - name: Add delay before checks
-      run: sleep 15
+      run: sleep 30
 
-    - name: Check PostgreSQL version
-      run: docker run --rm postgres:15 pg_isready
-
-    - name: Show PostgreSQL logs
-      run: docker logs postgres || true
-
-    - name: Check DNS resolution for PostgreSQL
+    - name: Check PostgreSQL port
       run: |
-        nslookup -c 3 postgres || (echo "Failed to resolve 'postgres'" && exit 1)
+        timeout 10 bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done' || (echo "Port 5432 is not open" && exit 1)
 
-    - name: Show PostgreSQL container status
-      run: docker ps -a
-
-    - name: Check if PostgreSQL container is running
+    - name: Wait for PostgreSQL to be ready (Docker Inspect)
       run: |
-        if docker ps -q -f name=postgres > /dev/null; then
-          echo "PostgreSQL container is running."
-        else
-          echo "PostgreSQL container is not running yet."
-        fi
-
-    - name: Wait for PostgreSQL to be ready (HEALTHCHECK)
-      run: |
-        until docker inspect -f '{{.State.Health.Status}}' postgres | grep -q "healthy"; do
+        until [ "$(docker inspect -f '{{.State.Health.Status}}' postgres)" = "healthy" ]; do
           echo "Waiting for PostgreSQL HEALTHCHECK..."
           sleep 5
         done
 
     - name: Wait for PostgreSQL to be ready (psql)
       run: |
-        until psql -h postgres -U ${{ secrets.DB_USER }} -c '\l'; do
+        until psql -h postgres -U postgres -c '\l'; do
           echo "Waiting for PostgreSQL..."
           sleep 5
         done
+
+    - name: Check PostgreSQL version
+      run: docker run --rm postgres:15-alpine pg_isready
+
+    - name: Show detailed PostgreSQL logs
+      run: docker logs postgres --details || true
 
     - name: Run migrations
       run: poetry run python manage.py migrate
