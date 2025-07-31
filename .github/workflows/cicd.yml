@@ -22,7 +22,7 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
+          --health-retries 30
 
     steps:
     - name: Check out code
@@ -61,6 +61,13 @@ jobs:
         echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
         echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
         echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
+
+    - name: Check DNS resolution for PostgreSQL
+      run: |
+        ping -c 3 postgres || (echo "Failed to resolve 'postgres'" && exit 1)
+
+    - name: Show PostgreSQL container status
+      run: docker ps -a
 
     - name: Check if PostgreSQL container is running
       run: |
