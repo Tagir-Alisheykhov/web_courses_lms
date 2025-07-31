@@ -56,7 +56,7 @@ jobs:
         echo "CACHE_ENABLED=False" >> .env
         echo "NAME=test_db" >> .env
         echo "USER=postgres" >> .env
-        echo "PASSWORD=postgres" >> .env
+        echo "PASSWORD=runner" >> .env
         echo "HOST=127.0.0.1" >> .env
         echo "PORT=5432" >> .env
 
