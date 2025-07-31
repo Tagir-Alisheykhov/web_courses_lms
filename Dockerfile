@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir "poetry==2.1.1" && \
     poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --without dev
+RUN poetry install --no-root
 
 # Runtime stage
 FROM python:3.11-slim
