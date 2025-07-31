@@ -22,7 +22,7 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 10
+          --health-retries 20
 
     steps:
     - name: Check out code
@@ -62,8 +62,13 @@ jobs:
         echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
         echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
 
-    - name: Show PostgreSQL logs
-      run: docker logs postgres
+    - name: Check if PostgreSQL container is running
+      run: |
+        if docker ps -q -f name=postgres > /dev/null; then
+          echo "PostgreSQL container is running."
+        else
+          echo "PostgreSQL container is not running yet."
+        fi
 
     - name: Wait for PostgreSQL to be ready
       run: |
@@ -71,6 +76,9 @@ jobs:
           echo "Waiting for PostgreSQL..."
           sleep 5
         done
+
+    - name: Show PostgreSQL logs
+      run: docker logs postgres || true
 
     - name: Run migrations
       run: poetry run python manage.py migrate
