@@ -1,5 +1,5 @@
 # Build stage
-FROM python: 3.11 as builder
+FROM python:3.11 as builder
 WORKDIR /app
 
 # Install Poetry and dependencies
