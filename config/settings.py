@@ -175,11 +175,21 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 
 # Настойка CORS
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_FRONTEND")
-CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS")
-# CORS_ALLOW_CREDENTIALS = True  # Если фронтенд отправляет куки
+cors_allow_all_origins = os.getenv("CORS_ALLOW_ALL_ORIGINS", "False").lower() == "true"
+CORS_ALLOW_ALL_ORIGINS = cors_allow_all_origins
+
+if not CORS_ALLOW_ALL_ORIGINS:
+    cors_frontend = os.getenv("CORS_FRONTEND", "")
+    if cors_frontend:
+        CORS_ALLOWED_ORIGINS = cors_frontend.split(",")
+    else:
+        CORS_ALLOWED_ORIGINS = []
+else:
+    CORS_ALLOWED_ORIGINS = []
+
+# Настройка CSRF_TRUSTED_ORIGINS
 csrf_origins = os.getenv("CORS_FRONTEND", "")
 if csrf_origins:
-    CSRF_TRUSTED_ORIGINS = csrf_origins.split(",")
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",")]
 else:
-    CSRF_TRUSTED_ORIGINS = []  # Установите пустой список, если значение не задано
+    CSRF_TRUSTED_ORIGINS = []

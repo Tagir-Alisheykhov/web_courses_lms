@@ -31,20 +31,24 @@ jobs:
 
     - name: Start services with Docker Compose
       run: |
-        echo "POSTGRES_DB=web_courses_lms" >> .env
-        echo "POSTGRES_USER=postgres" >> .env
-        echo "POSTGRES_PASSWORD=password" >> .env
-        echo "POSTGRES_HOST=db" >> .env
-        echo "POSTGRES_PORT=5432" >> .env
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-        echo "DEBUG=False" >> .env
-        echo "REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}" >> .env
-        echo "REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}" >> .env
-        echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> .env
-        echo "GITHUB_SHA=${{ github.sha }}" >> .env
+        cat > .env <<EOL
+        POSTGRES_DB=web_courses_lms
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=password
+        POSTGRES_HOST=db
+        POSTGRES_PORT=5432
+        SECRET_KEY=${{ secrets.SECRET_KEY }}
+        DEBUG=False
+        DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+        REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}
+        REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}
+        CORS_FRONTEND=http://localhost:8000,http://89.169.187.28:8000
+        CORS_ALLOW_ALL_ORIGINS=False
+        EOL
         docker compose up -d --build
         docker compose logs db
         docker compose logs redis
+
 
     - name: Wait for PostgreSQL to be ready
       run: |
@@ -97,6 +101,9 @@ jobs:
         print('Connection successful!');
         conn.close()
         "
+
+    - name: Collect static files
+      run: docker compose exec web python manage.py collectstatic --noinput
 
     - name: Run migrations
       run: |
