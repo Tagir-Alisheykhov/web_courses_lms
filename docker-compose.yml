@@ -51,6 +51,20 @@ services:
     networks:
       - app_network
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Nginx.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - static:/app/staticfiles
+      - media:/app/media
+    networks:
+      - app_network
+
   redis:
     image: redis:7-alpine
     command: redis-server --save 60 1 --loglevel warning

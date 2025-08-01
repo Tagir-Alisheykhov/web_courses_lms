@@ -25,7 +25,7 @@ RUN apt-get update && \
 # Copy application code
 COPY . .
 
-RUN mkdir -p /app/static /app/media
+RUN mkdir -p /app/staticfiles /app/media /app/static
 
 # Gunicorn config
 ENV GUNICORN_CMD_ARGS="--workers=4 --threads=2 --timeout=60 --bind=0.0.0.0:8000"
