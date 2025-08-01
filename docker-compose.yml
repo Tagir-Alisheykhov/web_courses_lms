@@ -1,0 +1,109 @@
+services:
+  web:
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
+    volumes:
+      - media:/app/media
+      - static:/app/staticfiles
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    restart: always
+    networks:
+      - app_network
+
+  celery_worker:
+    user: "1000:1000"
+    environment:
+      - C_FORCE_ROOT=0
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
+    command: celery -A config worker -l INFO
+    volumes:
+      - media:/app/media
+      - static:/app/staticfiles
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - app_network
+
+
+  celery_beat:
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
+    command: celery -A config beat -l INFO
+    volumes:
+      - media:/app/media
+      - static:/app/staticfiles
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - app_network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Nginx.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - static:/app/staticfiles
+      - media:/app/media
+    networks:
+      - app_network
+    profiles: ["${BUILD_NGINX:-false}"]
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+    - app_network
+
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - app_network
+
+
+networks:
+  app_network:
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  media:
+  static:

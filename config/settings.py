@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True if os.getenv("DEBUG") == "True" else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -29,12 +29,14 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "rest_framework",
     "django_filters",
+    "corsheaders",
     "drf_yasg",
     "users",
     "lms",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -65,11 +67,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend"),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
 }
 
 SIMPLE_JWT = {
@@ -80,11 +86,11 @@ SIMPLE_JWT = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("NAME"),
-        "USER": os.getenv("USER"),
-        "PASSWORD": os.getenv("PASSWORD"),
-        "HOST": os.getenv("HOST"),
-        "PORT": os.getenv("PORT"),
+        "NAME": os.getenv("POSTGRES_DB", "web_courses_lms"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "password"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
 
@@ -112,9 +118,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = "static/"
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -165,3 +173,23 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
+
+# Настойка CORS
+cors_allow_all_origins = os.getenv("CORS_ALLOW_ALL_ORIGINS", "False").lower() == "true"
+CORS_ALLOW_ALL_ORIGINS = cors_allow_all_origins
+
+if not CORS_ALLOW_ALL_ORIGINS:
+    cors_frontend = os.getenv("CORS_FRONTEND", "")
+    if cors_frontend:
+        CORS_ALLOWED_ORIGINS = cors_frontend.split(",")
+    else:
+        CORS_ALLOWED_ORIGINS = []
+else:
+    CORS_ALLOWED_ORIGINS = []
+
+# Настройка CSRF_TRUSTED_ORIGINS
+csrf_origins = os.getenv("CORS_FRONTEND", "")
+if csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_origins.split(",")]
+else:
+    CSRF_TRUSTED_ORIGINS = []
