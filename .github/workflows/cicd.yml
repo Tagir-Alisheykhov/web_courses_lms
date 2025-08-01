@@ -32,6 +32,7 @@ jobs:
     - name: Start services with Docker Compose
       run: |
         cat > .env <<EOL
+        BUILD_NGINX=false
         POSTGRES_DB=web_courses_lms
         POSTGRES_USER=postgres
         POSTGRES_PASSWORD=password
@@ -149,6 +150,7 @@ jobs:
       - name: Deploy to server
         run: |
           cat > .env <<EOL
+          BUILD_NGINX=true
           POSTGRES_DB=${{ secrets.DB_NAME }}
           POSTGRES_USER=${{ secrets.DB_USER }}
           POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
