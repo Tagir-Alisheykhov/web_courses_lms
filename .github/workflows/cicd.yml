@@ -177,3 +177,7 @@ jobs:
           docker compose up -d
           docker compose exec web python manage.py collectstatic --noinput
           EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          sudo systemctl daemon-reload
+          sudo systemctl restart web_courses_lms
+          EOF
