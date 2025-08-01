@@ -154,7 +154,7 @@ jobs:
           DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
           REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}
           REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}
-          CORS_FRONTEND=${{ secrets.CORS_FRONTEND }}
+          CORS_FRONTEND=http://localhost:8000,http://89.169.187.28:8000,http://127.0.0.1:8000
           CORS_BACKEND=${{ secrets.CORS_BACKEND }}
           CORS_ALLOW_ALL_ORIGINS=${{ secrets.CORS_ALLOW_ALL_ORIGINS }}
           STRIPE_API_KEY_SECRET=${{ secrets.STRIPE_API_KEY_SECRET }}
