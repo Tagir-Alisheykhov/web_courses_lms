@@ -3,7 +3,7 @@ services:
     image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
     volumes:
       - media:/app/media
-      - static:/app/static
+      - static:/app/staticfiles
     env_file:
       - .env
     ports:
@@ -26,7 +26,7 @@ services:
     command: celery -A config worker -l INFO
     volumes:
       - media:/app/media
-      - static:/app/static
+      - static:/app/staticfiles
     depends_on:
       - redis
       - db
@@ -41,7 +41,7 @@ services:
     command: celery -A config beat -l INFO
     volumes:
       - media:/app/media
-      - static:/app/static
+      - static:/app/staticfiles
     depends_on:
       - redis
       - db

@@ -154,6 +154,9 @@ jobs:
           DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
           REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}
           REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}
+          CORS_FRONTEND=${{ secrets.CORS_FRONTEND }}
+          CORS_BACKEND=${{ secrets.CORS_BACKEND }}
+          CORS_ALLOW_ALL_ORIGINS=${{ secrets.CORS_ALLOW_ALL_ORIGINS }}
           STRIPE_API_KEY_SECRET=${{ secrets.STRIPE_API_KEY_SECRET }}
           CELERY_URL=${{ secrets.CELERY_URL }}
           GITHUB_SHA=${{ github.sha }}            
@@ -165,4 +168,5 @@ jobs:
           docker compose down || true
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/web_courses_lms:${{ github.sha }}
           docker compose up -d
+          docker compose exec web python manage.py collectstatic --noinput
           EOF
