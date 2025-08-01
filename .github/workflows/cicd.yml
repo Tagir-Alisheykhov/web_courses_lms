@@ -2,7 +2,11 @@ name: CI Django with Postgres
 
 on:
   push:
-    branches: [main]
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
 
 
 jobs:
