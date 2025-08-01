@@ -22,7 +22,7 @@ services:
     user: "1000:1000"
     environment:
       - C_FORCE_ROOT=0
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
     command: celery -A config worker -l INFO
     volumes:
       - media:/app/media
@@ -37,7 +37,7 @@ services:
       - app_network
 
   celery_beat:
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/web_courses_lms:${GITHUB_SHA}
     command: celery -A config beat -l INFO
     volumes:
       - media:/app/media
