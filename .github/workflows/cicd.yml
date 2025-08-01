@@ -158,9 +158,7 @@ jobs:
           CELERY_URL=${{ secrets.CELERY_URL }}
           GITHUB_SHA=${{ github.sha }}            
           EOL
-          
-          scp docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/var/www/web_courses_lms/
-          
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/var/www/web_courses_lms/
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           mkdir -p /var/www/web_courses_lms
           cd /var/www/web_courses_lms
