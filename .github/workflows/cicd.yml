@@ -127,6 +127,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -134,7 +137,26 @@ jobs:
 
       - name: Deploy to server
         run: |
-          scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/var/www/web_courses_lms/          
+          cat > .env <<EOL
+          POSTGRES_DB=${{ secrets.DB_NAME }}
+          POSTGRES_USER=${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
+          POSTGRES_HOST=${{ secrets.DB_HOST }}
+          POSTGRES_PORT=${{ secrets.DB_PORT }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          DEBUG=${{ secrets.DEBUG }}
+          REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}
+          REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}
+          DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+          REDIS_BACKEND=${{ secrets.REDIS_BACKEND }}
+          REDIS_LOCATION=${{ secrets.REDIS_LOCATION }}
+          STRIPE_API_KEY_SECRET=${{ secrets.STRIPE_API_KEY_SECRET }}
+          CELERY_URL=${{ secrets.CELERY_URL }}
+          GITHUB_SHA=${{ github.sha }}            
+          EOL
+          
+          scp docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/var/www/web_courses_lms/
+          
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           mkdir -p /var/www/web_courses_lms
           cd /var/www/web_courses_lms
